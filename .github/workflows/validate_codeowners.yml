@@ -1,34 +1,54 @@
 name: Validate codeowners
-
 on:
   push:
     branches:
-      - master
-      - r*
-
-#  pull_request_target:
-#    branches:
-#      - master
-#      - r*
-# Enable pull_request_target when notify_codeowners.py can validate the codeowners file
-# of the commit that triggered the workflow, not the commit the workflow is runnng on.
-# Otherwise, it's useless, it just check the codeowners file from the latest commit in master
-
-
-permissions:
-  contents: read
+      - main
 
 jobs:
   validate-codeowners:
     name: Check that the CODEOWNERS is valid
     runs-on: ubuntu-latest
     steps:
+      - name: Start Energy Measurement
+        uses: green-coding-solutions/eco-ci-energy-estimation@862050e4f01f65b1436e5eca18ba4bd85562f0de
+        with:
+          json-output: true
+          task: start-measurement
       - uses: actions/checkout@v2
       - uses: actions/setup-python@v1
         with:
           python-version: 3.9
       - run: pip install pygithub click
-      - name: Check that the CODEOWNERS is valid
-        env:
+      - id: measurement-4
+        name: Record Measurement After Step
+        uses: green-coding-solutions/eco-ci-energy-estimation@862050e4f01f65b1436e5eca18ba4bd85562f0de
+        with:
+          json-output: true
+          label: Step
+          task: get-measurement
+      - env:
           BOT_TOKEN: ${{ secrets.BOT_TOKEN }}
+        name: Check that the CODEOWNERS is valid
         run: python .github/workflows/notify_codeowners.py
+      - id: measurement-6
+        name: Record Measurement After Check that the CODEOWNERS is valid
+        uses: green-coding-solutions/eco-ci-energy-estimation@862050e4f01f65b1436e5eca18ba4bd85562f0de
+        with:
+          json-output: true
+          label: Check that the CODEOWNERS is valid
+          task: get-measurement
+      - id: display-measurement
+        name: Display Energy Results
+        uses: green-coding-solutions/eco-ci-energy-estimation@862050e4f01f65b1436e5eca18ba4bd85562f0de
+        with:
+          json-output: true
+          task: display-results
+      - name: Save Total Energy Consumption Data
+        run: echo '${{ steps.final-measurement.outputs.data-total-json }}' > total_energy_consumption.json
+      - name: Upload Energy Consumption Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: total-energy-consumption
+          path: total_energy_consumption.json
+permissions:
+  contents: read

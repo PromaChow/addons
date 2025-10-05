@@ -1,24 +1,42 @@
 name: Backport
 on:
-  pull_request:
-    types:
-      - closed
-      - labeled
-
-permissions: {}
+  push:
+    branches:
+      - main
 
 jobs:
   backport:
-    runs-on: ubuntu-20.04
     name: Backport
-    permissions: 
+    permissions:
       contents: write
+    runs-on: ubuntu-20.04
     steps:
-      - name: Backport Bot
-        if: github.event.pull_request.merged && ( ( github.event.action == 'closed' && contains( join( github.event.pull_request.labels.*.name ), 'backport') ) || contains( github.event.label.name, 'backport' ) )
-        uses: Gaurav0/backport@d69fd1d2469762a7b4007f671857e4f94deed0af # Version 1.0.24
+      - name: Start Energy Measurement
+        uses: green-coding-solutions/eco-ci-energy-estimation@862050e4f01f65b1436e5eca18ba4bd85562f0de
         with:
-          bot_username: bot-of-gabrieldemarmiesse
+          json-output: true
+          task: start-measurement
+      - if: github.event.pull_request.merged && ( ( github.event.action == 'closed'
+          && contains( join( github.event.pull_request.labels.*.name ), 'backport')
+          ) || contains( github.event.label.name, 'backport' ) )
+        name: Backport Bot
+        uses: Gaurav0/backport@d69fd1d2469762a7b4007f671857e4f94deed0af
+        with:
           bot_token: 1353d990cdb8b8ceb1b73d301dce83cc0da3db29
           bot_token_key: a1b2c3d47311f8e29e204f85a81b4df4a44e252c
+          bot_username: bot-of-gabrieldemarmiesse
           github_token: ${{ secrets.GITHUB_TOKEN }}
+      - id: display-measurement
+        name: Display Energy Results
+        uses: green-coding-solutions/eco-ci-energy-estimation@862050e4f01f65b1436e5eca18ba4bd85562f0de
+        with:
+          json-output: true
+          task: display-results
+      - name: Save Total Energy Consumption Data
+        run: echo '${{ steps.final-measurement.outputs.data-total-json }}' > total_energy_consumption.json
+      - name: Upload Energy Consumption Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: total-energy-consumption
+          path: total_energy_consumption.json
+permissions: {}
