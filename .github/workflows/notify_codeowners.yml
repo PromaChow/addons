@@ -2,7 +2,7 @@ name: Notify codeowners
 on:
   push:
     branches:
-      - main
+      - master
 
 jobs:
   notify-codeowners:
@@ -30,7 +30,8 @@ jobs:
           BOT_TOKEN: ${{ secrets.BOT_TOKEN }}
           PR: ${{ steps.findPr.outputs.pr }}
         name: Drop a message for codeowners
-        run: "python .github/workflows/notify_codeowners.py \\\n    --pull-request-id=auto\
+        run:
+          "python .github/workflows/notify_codeowners.py \\\n    --pull-request-id=auto\
           \ \\\n    --no-dry-run\n"
       - id: measurement-6
         name: Record Measurement After Drop a message for codeowners

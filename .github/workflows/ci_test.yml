@@ -2,7 +2,7 @@ name: GitHub CI
 on:
   push:
     branches:
-      - main
+      - master
 
 jobs:
   black-test:
@@ -18,7 +18,8 @@ jobs:
       - name: Ensure contributor used ("black ./") before commit
         run: bash tools/run_build.sh black-test
       - id: measurement-3
-        name: Record Measurement After Ensure contributor used ("black ./") before
+        name:
+          Record Measurement After Ensure contributor used ("black ./") before
           commit
         uses: green-coding-solutions/eco-ci-energy-estimation@862050e4f01f65b1436e5eca18ba4bd85562f0de
         with:
@@ -187,7 +188,8 @@ jobs:
           label: Install tensorflow-docs
           task: get-measurement
       - name: Check notebook formatting
-        run: "# Run on all notebooks to prevent upstream change.\necho \"Check formatting\
+        run:
+          "# Run on all notebooks to prevent upstream change.\necho \"Check formatting\
           \ with nbfmt:\"\npython3 -m tensorflow_docs.tools.nbfmt --test \\\n    $(find\
           \ docs/tutorials/ -type f -name *.ipynb)\n"
       - id: measurement-6
@@ -231,7 +233,8 @@ jobs:
           label: Install tensorflow-docs
           task: get-measurement
       - name: Lint notebooks
-        run: "# Run on all notebooks to prevent upstream change.\necho \"Lint check\
+        run:
+          "# Run on all notebooks to prevent upstream change.\necho \"Lint check\
           \ with nblint:\"\npython3 -m tensorflow_docs.tools.nblint \\\n    --arg=repo:tensorflow/addons\
           \ \\\n    $(find docs/tutorials/ -type f -name *.ipynb ! -path \"docs/tutorials/_template.ipynb\"\
           )\n"
@@ -363,7 +366,8 @@ jobs:
         with:
           python-version: 3.9
       - uses: actions/checkout@v2
-      - run: pip install --default-timeout=1000 -r tools/install_deps/tensorflow-cpu.txt
+      - run:
+          pip install --default-timeout=1000 -r tools/install_deps/tensorflow-cpu.txt
           -r tools/install_deps/pytest.txt
       - id: measurement-4
         name: Record Measurement After Step
